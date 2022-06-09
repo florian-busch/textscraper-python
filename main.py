@@ -1,16 +1,14 @@
 
 from operator import itemgetter
-import urllib.request
+# import urllib.request
 from bs4 import BeautifulSoup
+from scraper import getTextFromWebsite
 
 #sitemap from https://www.xml-sitemaps.com
 sitemapFile = BeautifulSoup(open('sitemap.xml', 'r'), 'lxml')
 
 #all urls from sitemapFile without xml-tags
 stripped_urls = []
-
-#list with text from every website listed in stripped_urls-list
-scrapedTextFromWebsites = []
 
 #get all the urls in sitemap.xml --> find <loc>-elements
 locElements = sitemapFile.find_all('loc')
@@ -20,21 +18,8 @@ for tag in locElements:
 
 print(f'Number of URLs: {len(stripped_urls)}')
 
-#scrape text from website and append it to list (separated by url and 2 newlines)
-def getTextFromWebsite(url):
-    html = urllib.request.urlopen(url)
-
-    soup = BeautifulSoup(html, 'html.parser')
-    #stripped_strings generator --> returns array so duplicates can be removed easier
-    strippedStrings = [text for text in soup.stripped_strings]
-    #add current url as list so later list-flattening doesn't split it in seperate letters
-    scrapedTextFromWebsites.append([f'\n\n{url}'])
-    scrapedTextFromWebsites.append(strippedStrings)
-
-#hand every url to scraper-function
-for url in stripped_urls[0:10]:
-    print(url)
-    getTextFromWebsite(url)
+#create list of scraped website text by handing each url to scraping function
+scrapedTextFromWebsites = [getTextFromWebsite(url) for url in stripped_urls[0:10]]
 
 #flatten the parsed_sites list --> so it can be converted to set() without duplicates
 final_text = [x for xs in scrapedTextFromWebsites for x in xs]
@@ -67,11 +52,14 @@ for string in final_text:
         duplicates[string] = occurrence
 
 #sort duplicates in ascending order by number of occurences
-sorted_duplicates = sorted(duplicates.items(), key=itemgetter(0))
+sorted_duplicates = sorted(duplicates.items(), key=lambda item: item[1])
 
 #write statistics to file
 with open('statistics.txt', 'w', encoding='utf-8') as fp:
     fp.write(f'Number of websites scraped: {len(stripped_urls)}\n')
+    #count words by summing up len of each element of final_text and final_set --> writes to file as [13534] but still readable
+    fp.write(f'Wordcount with duplicates (urls included!): {[sum(len(text) for text in final_text)]}\n')
+    fp.write(f'Wordcount without duplicates (urls included): {[sum(len(text) for text in final_set)]}\n\n')
     fp.write('Duplicates\n')
     for item in sorted_duplicates:
         fp.write(f'{item}\n')
