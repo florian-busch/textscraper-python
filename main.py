@@ -11,7 +11,7 @@ stripped_urls = []
 #list with text from every website listed in stripped_urls-list
 scrapedTextFromWebsites = []
 
-#get all the urls in sitemap.xml --> find <loc>-elements and
+#get all the urls in sitemap.xml --> find <loc>-elements
 locElements = sitemapFile.find_all('loc')
 for tag in locElements:
     #convert to string and splice from 5:-6 to remove <loc>...</loc> tags
@@ -66,9 +66,11 @@ for string in final_text:
 #sort duplicates in ascending order by number of occurences
 sorted_duplicates = sorted(duplicates.items(), key=lambda item: item[1])
 
-#write duplicates to file
+#write statistics to file
 with open('statistics.txt', 'w') as fp:
+    fp.write(f'Number of websites scraped: {len(stripped_urls)}\n')
+    fp.write('Duplicates\n')
     for item in sorted_duplicates:
         fp.write(f'{item}\n')
 
-print('Duplictes Done')
+print('Statistics Done')
