@@ -1,4 +1,5 @@
 
+from operator import itemgetter
 import urllib.request
 from bs4 import BeautifulSoup
 
@@ -17,6 +18,8 @@ for tag in locElements:
     #convert to string and splice from 5:-6 to remove <loc>...</loc> tags
     stripped_urls.append(str(tag)[5:-6])
 
+print(f'Number of URLs: {len(stripped_urls)}')
+
 #scrape text from website and append it to list (separated by url and 2 newlines)
 def getTextFromWebsite(url):
     html = urllib.request.urlopen(url)
@@ -29,7 +32,7 @@ def getTextFromWebsite(url):
     scrapedTextFromWebsites.append(strippedStrings)
 
 #hand every url to scraper-function
-for url in stripped_urls:
+for url in stripped_urls[0:10]:
     print(url)
     getTextFromWebsite(url)
 
@@ -40,14 +43,14 @@ final_text = [x for xs in scrapedTextFromWebsites for x in xs]
 final_set = set(final_text)
 
 #write scraped text without duplicates to file
-with open('final_without_duplicates.txt', 'w') as fp:
+with open('final_without_duplicates.txt', 'w', encoding='utf-8') as fp:
     for item in final_set:
         fp.write(f'{item}\n')
 
 print('Without Duplicates Done')
 
 #write scraped text with duplicates to file
-with open('final_with_duplicates.txt', 'w') as fp:
+with open('final_with_duplicates.txt', 'w', encoding='utf-8') as fp:
     for item in final_text:
         fp.write(f'{item}\n')
 
@@ -64,10 +67,10 @@ for string in final_text:
         duplicates[string] = occurrence
 
 #sort duplicates in ascending order by number of occurences
-sorted_duplicates = sorted(duplicates.items(), key=lambda item: item[1])
+sorted_duplicates = sorted(duplicates.items(), key=itemgetter(0))
 
 #write statistics to file
-with open('statistics.txt', 'w') as fp:
+with open('statistics.txt', 'w', encoding='utf-8') as fp:
     fp.write(f'Number of websites scraped: {len(stripped_urls)}\n')
     fp.write('Duplicates\n')
     for item in sorted_duplicates:
