@@ -19,7 +19,7 @@ for tag in locElements:
 print(f'Number of URLs: {len(stripped_urls)}')
 
 #create list of scraped website text by handing each url to scraping function
-scrapedTextFromWebsites = [getTextFromWebsite(url) for url in stripped_urls[0:20]]
+scrapedTextFromWebsites = [getTextFromWebsite(url) for url in stripped_urls]
 
 #flatten the parsed_sites list --> so it can be converted to set() without duplicates
 final_text = [x for xs in scrapedTextFromWebsites for x in xs]
